@@ -1,4 +1,3 @@
-import PropTypes from "prop-types";
 import { Link } from "react-router-dom";
 import { useContext } from "react";
 import { ShopContext } from "../context/ShopContext";
@@ -20,13 +19,6 @@ const ProductItem = ({ id, image, title, originalPrice }) => {
       </p>
     </Link>
   );
-};
-
-ProductItem.propTypes = {
-  id: PropTypes.string.isRequired,
-  image: PropTypes.arrayOf(PropTypes.string).isRequired,
-  title: PropTypes.string.isRequired,
-  originalPrice: PropTypes.number.isRequired,
 };
 
 export default ProductItem;

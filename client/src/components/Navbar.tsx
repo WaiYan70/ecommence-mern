@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { icons } from "../assets/assets";
+import { icons } from "../assets/assets.js";
 import { Link, NavLink } from "react-router-dom";
 
 const Navbar = () => {
