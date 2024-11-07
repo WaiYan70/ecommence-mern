@@ -1,18 +1,25 @@
-import { useContext, useEffect, useState } from "react";
+import React, { useContext, useEffect, useState } from "react";
 import { ShopContext } from "../context/ShopContext";
 
 import Title from "./Title";
 import ProductItem from "./ProductItem";
 
-const LatestCollection = () => {
-  const { products } = useContext(ShopContext);
-  const [latestProducts, setLatestProducts] = useState([]);
+interface ProductItemProps {
+  _id: string;
+  image: string[];
+  title: string;
+  originalPrice: number;
+}
+
+const LatestCollection: React.FC = () => {
+  const { products } = useContext(ShopContext) as {
+    products: ProductItemProps[];
+  };
+  const [latestProducts, setLatestProducts] = useState<ProductItemProps[]>([]);
 
   useEffect(() => {
     setLatestProducts(products.slice(0, 10));
   }, [products]);
-
-  console.log(products);
 
   return (
     <div className="my-10">
