@@ -4,7 +4,7 @@ import React, { useContext } from "react";
 import { ShopContext } from "../context/ShopContext";
 
 interface ProductItemProps {
-  id: string;
+  id: number;
   image: string[];
   title: string;
   originalPrice: number;
@@ -16,7 +16,11 @@ const ProductItem: React.FC<ProductItemProps> = ({
   title,
   originalPrice,
 }) => {
-  const { currency } = useContext(ShopContext);
+  const context = useContext(ShopContext);
+  if (!context) {
+    return null;
+  }
+  const { currency } = context;
   return (
     <Link className="text-gray-700 cursor-pointer" to={`/product/${id}`}>
       <div className="overflow-hidden">

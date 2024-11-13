@@ -26,9 +26,18 @@
 // export default ShopContextProvider;
 
 import { createContext } from "react";
-import { products } from "../assets/assets";
+import { Product, products } from "../assets/assets";
 
-export const ShopContext = createContext({});
+interface ShopContextType {
+  products: Product[];
+  currency: string;
+  delivery_fee: number;
+}
+
+export const ShopContext = createContext<ShopContextType | undefined>(
+  undefined,
+);
+
 export const currency = "$";
 export const delivery_fee = 10;
 export const contextValue = {

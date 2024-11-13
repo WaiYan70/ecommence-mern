@@ -3,23 +3,17 @@ import { ShopContext } from "../context/ShopContext";
 
 import Title from "./Title";
 import ProductItem from "./ProductItem";
-
-interface ProductItemProps {
-  _id: string;
-  image: string[];
-  title: string;
-  originalPrice: number;
-}
+import { Product } from "../assets/assets";
 
 const LatestCollection: React.FC = () => {
-  const { products } = useContext(ShopContext) as {
-    products: ProductItemProps[];
-  };
-  const [latestProducts, setLatestProducts] = useState<ProductItemProps[]>([]);
+  const context = useContext(ShopContext);
+  const [latestProducts, setLatestProducts] = useState<Product[]>([]);
 
   useEffect(() => {
-    setLatestProducts(products.slice(0, 10));
-  }, [products]);
+    if (context?.products) {
+      setLatestProducts(context.products.slice(0, 10));
+    }
+  }, [context]);
 
   return (
     <div className="my-10">
