@@ -1,39 +1,59 @@
-import { useContext } from "react";
+import React, { useContext, useEffect, useState } from "react";
+import { useParams } from "react-router-dom";
 import { ShopContext } from "../context/ShopContext";
+import { Product as ProductType } from "../assets/assets";
 
-const Product = () => {
+const Product: React.FC = () => {
   const context = useContext(ShopContext);
   if (!context) {
     throw new Error("ShopContext must be used within a ShopContextProvider");
   }
-  return (
-    <div className="flex border-2 border-black-500">
-      {/* Image Side */}
-      <div className="flex border-2 border-red-500 m-5">
-        {/* Big Image */}
-        <div>
-          <h2>Big Image</h2>
-          <img src="" alt="" />
-        </div>
-        {/* Small Image */}
-        <div>
-          {/* Small Image - 1 */}
-          <div>
-            <h3>Small Image</h3>
-            <img src="" alt="" />
+  const { products } = context;
+  const { productId } = useParams();
+  const [productData, setProductData] = useState<ProductType | null>(null);
+  const [image, setImage] = useState("");
+
+  const fetchProductData = () => {
+    const foundProduct = products.find((item) => item._id === productId);
+    if (foundProduct) {
+      setProductData(foundProduct);
+      setImage(foundProduct.image[0]);
+      console.log(foundProduct);
+    }
+  };
+
+  useEffect(() => {
+    fetchProductData();
+  }, [productId, products]);
+
+  return productData ? (
+    <div className="border-t-2 pt-10 transition-opacity ease-in duration-500 opacity-100">
+      {/* Product Data */}
+      <div className="flex gap-12 sm:gap-12 flex-col sm:flex-row">
+        {/* Product Images */}
+        <div className="flex-1 flex flex-col-reverse gap-3 sm:flex-row">
+          <div className="flex sm:flex-col overflow-x-auto sm:overflow-y-scroll justify-between sm:justify-normal sm:w-[18.7%] w-full">
+            {productData.image.map((item, index) => (
+              <img
+                onClick={() => setImage(item)}
+                src={item}
+                key={index}
+                className="w-[24%] sm:w-full sm:mb-3 flex-shrink-0 cursor-pointer"
+              />
+            ))}
+          </div>
+          <div className="w-full sm:w-[80%]">
+            <img src={image} className="w-full h-auto" alt="" />
           </div>
         </div>
-      </div>
-      {/* Description Side */}
-      <div className="flex flex-col border-2 border-blue-500 m-5">
-        <h2>Product's title</h2>
-        <h3>Prodcut's type/category</h3>
-        <p>
-          Lorem ipsum dolor sit amet consectetur, adipisicing elit. Optio quam
-          ab porro eius officia harum quisquam aliquid quas itaque blanditiis.
-        </p>
+        {/* Product Info */}
+        <div className="flex-1">
+          <h1 className="font-medium text-2xl mt-2">{productData.title}</h1>
+        </div>
       </div>
     </div>
+  ) : (
+    <div className="opacity-0"></div>
   );
 };
 

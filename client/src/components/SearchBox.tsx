@@ -29,7 +29,9 @@ const SearchBox = () => {
         <div
           onClick={() => setShowSearch(false)}
           className={`fixed inset-0 bg-black transition-opacity duration-300 z-40 ${
-            showSearch ? "opacity-50 visible" : "opacity-0 invisible"
+            showSearch && isSearchOpen
+              ? "opacity-50 visible"
+              : "opacity-0 invisible"
           }`}
         ></div>
 
@@ -37,7 +39,7 @@ const SearchBox = () => {
         <div
           className={`fixed inset-y-0 right-0 bg-white shadow-lg z-50
             transition-transform duration-300 transform ${
-              showSearch ? "translate-x-0" : "translate-x-full"
+              showSearch && isSearchOpen ? "translate-x-0" : "translate-x-full"
             }
             w-full md:w-1/2 lg:w-1/2`}
         >

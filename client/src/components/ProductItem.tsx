@@ -4,7 +4,7 @@ import React, { useContext } from "react";
 import { ShopContext } from "../context/ShopContext";
 
 interface ProductItemProps {
-  id: number;
+  id: string;
   image: string[];
   title: string;
   originalPrice: number;
