@@ -9,7 +9,7 @@ const Product: React.FC = () => {
   if (!context) {
     throw new Error("ShopContext must be used within a ShopContextProvider");
   }
-  const { products, currency } = context;
+  const { products, currency, addToCart } = context;
   const { productId } = useParams();
   const [productData, setProductData] = useState<ProductType | null>(null);
   const [image, setImage] = useState("");
@@ -20,7 +20,6 @@ const Product: React.FC = () => {
     if (foundProduct) {
       setProductData(foundProduct);
       setImage(foundProduct.image[0]);
-      console.log(foundProduct);
     }
   };
 
@@ -78,7 +77,10 @@ const Product: React.FC = () => {
               ))}
             </div>
           </div>
-          <button className="bg-black text-white px-8 py-3 text-sm active:bg-gray-700">
+          <button
+            onClick={() => addToCart(productData._id, size)}
+            className="bg-black text-white px-8 py-3 text-sm active:bg-gray-700"
+          >
             Add to Cart
           </button>
           <hr className="mt-8 sm:w-4/5" />

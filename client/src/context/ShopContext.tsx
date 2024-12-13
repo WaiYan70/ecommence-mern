@@ -43,10 +43,45 @@
 // export default ShopContextProvider;
 
 // Solution - 3
+// import { createContext } from "react";
+// import { Product } from "../assets/assets";
+
+// // Define the CartItem type
+// interface CartItem {
+//   [key: string]: {
+//     product: Product;
+//     quantity: number;
+//   };
+// }
+
+// interface ShopContextType {
+//   products: Product[];
+//   currency: string;
+//   delivery_fee: number;
+//   search: string;
+//   setSearch: React.Dispatch<React.SetStateAction<string>>;
+//   showSearch: boolean;
+//   setShowSearch: React.Dispatch<React.SetStateAction<boolean>>;
+//   cartItem: CartItem;
+//   setCartItem: React.Dispatch<React.SetStateAction<CartItem>>;
+// }
+
+// export const ShopContext = createContext<ShopContextType | undefined>(
+//   undefined,
+// );
+
 import { createContext } from "react";
 import { Product } from "../assets/assets";
 
-interface ShopContextType {
+// Define CartItems structure
+interface CartItems {
+  [itemId: string]: {
+    [size: string]: number;
+  };
+}
+
+// Update ShopContextType to include all properties
+export interface ShopContextType {
   products: Product[];
   currency: string;
   delivery_fee: number;
@@ -54,6 +89,9 @@ interface ShopContextType {
   setSearch: React.Dispatch<React.SetStateAction<string>>;
   showSearch: boolean;
   setShowSearch: React.Dispatch<React.SetStateAction<boolean>>;
+  cartItems: CartItems;
+  setCartItems: React.Dispatch<React.SetStateAction<CartItems>>;
+  addToCart: (itemId: string, size: string) => void;
 }
 
 export const ShopContext = createContext<ShopContextType | undefined>(
