@@ -65,9 +65,10 @@
 
 // export default ShopContextProvider;
 
-import { ReactNode, useState } from "react";
+import { ReactNode, useEffect, useState } from "react";
 import { ShopContext, ShopContextType } from "./ShopContext";
 import { products } from "../assets/assets";
+import { toast } from "react-toastify";
 
 // Define CartItems structure
 interface CartItems {
@@ -88,6 +89,10 @@ const ShopContextProvider: React.FC<ShopContextProviderProps> = ({
   const [cartItems, setCartItems] = useState<CartItems>({});
 
   const addToCart = (itemId: string, size: string): void => {
+    if (!size) {
+      toast.error("Please select the size before adding into the cart");
+      return;
+    }
     setCartItems((prevCartItems) => {
       const updatedCartItems = { ...prevCartItems };
 
@@ -105,10 +110,14 @@ const ShopContextProvider: React.FC<ShopContextProviderProps> = ({
     });
   };
 
+  useEffect(() => {
+    console.log(cartItems);
+  }, [cartItems]);
+
   // Define the contextValue object
   const contextValue: ShopContextType = {
     products,
-    currency: "$",
+    currency: "฿",
     delivery_fee: 10,
     search,
     setSearch,
