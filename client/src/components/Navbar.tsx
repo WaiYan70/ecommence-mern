@@ -8,7 +8,7 @@ const Navbar = () => {
   if (!context) {
     throw new Error("Something is wrong in ShopContext or ShopContextProvder");
   }
-  const { setShowSearch } = context;
+  const { setShowSearch, getCartCount } = context;
   const [visibleSideBar, setVisibleSideBar] = useState(false);
 
   return (
@@ -48,7 +48,7 @@ const Navbar = () => {
         <Link to="/cart" className="relative">
           <img src={icons.cart_icon} className="w-5 min-w-5" alt="" />
           <p className="absolute right-[-5px] bottom-[-5px] w-4 text-center leading-4 bg-black text-white rounded-full text-[8px] aspect-square">
-            10
+            {getCartCount()}
           </p>
         </Link>
         <img

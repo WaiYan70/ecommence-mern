@@ -109,6 +109,21 @@ const ShopContextProvider: React.FC<ShopContextProviderProps> = ({
       return updatedCartItems;
     });
   };
+  const getCartCount = (): number => {
+    let totalCount = 0;
+    for (const itemId in cartItems) {
+      for (const size in cartItems[itemId]) {
+        try {
+          if (cartItems[itemId][size] > 0) {
+            totalCount += cartItems[itemId][size];
+          }
+        } catch (error) {
+          console.log(error);
+        }
+      }
+    }
+    return totalCount;
+  };
 
   useEffect(() => {
     console.log(cartItems);
@@ -126,6 +141,7 @@ const ShopContextProvider: React.FC<ShopContextProviderProps> = ({
     cartItems,
     setCartItems,
     addToCart,
+    getCartCount,
   };
 
   return (
