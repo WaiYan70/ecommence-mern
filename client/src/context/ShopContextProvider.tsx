@@ -124,6 +124,23 @@ const ShopContextProvider: React.FC<ShopContextProviderProps> = ({
     }
     return totalCount;
   };
+  const updateQuantity = (itemId: string, size: string, quantity: number) => {
+    const cartData = structuredClone(cartItems);
+    cartData[itemId][size] = quantity;
+    setCartItems(cartData);
+  };
+  // Update Quantity Function
+  // const updateQuantity = (itemId: string, size: string, quantity: number) => {
+  //   setCartItems((prevCartItems) => {
+  //     const updatedCartItems = { ...prevCartItems };
+
+  //     if (updatedCartItems[itemId] && updatedCartItems[itemId][size]) {
+  //       updatedCartItems[itemId][size] = quantity;
+  //     }
+
+  //     return updatedCartItems;
+  //   });
+  // };
 
   useEffect(() => {
     console.log(cartItems);
@@ -142,6 +159,7 @@ const ShopContextProvider: React.FC<ShopContextProviderProps> = ({
     setCartItems,
     addToCart,
     getCartCount,
+    updateQuantity,
   };
 
   return (

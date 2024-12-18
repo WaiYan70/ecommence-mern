@@ -65,6 +65,7 @@ export interface ShopContextType {
   setCartItems: React.Dispatch<React.SetStateAction<CartItems>>;
   addToCart: (itemId: string, size: string) => void;
   getCartCount: () => number;
+  updateQuantity: (itemId: string, size: string, quantity: number) => void;
 }
 
 export const ShopContext = createContext<ShopContextType | undefined>(

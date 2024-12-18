@@ -1,4 +1,4 @@
-import { useContext, useEffect, useState } from "react";
+import React, { useContext, useEffect, useState } from "react";
 import { ShopContext } from "../context/ShopContext";
 import Title from "../components/Title";
 import { icons } from "../assets/assets";
@@ -9,12 +9,12 @@ interface CartItem {
   quality: number;
 }
 
-const Cart = () => {
+const Cart: React.FC = () => {
   const context = useContext(ShopContext);
   if (!context) {
     throw new Error("Something must be wrong with ShopContextProvider");
   }
-  const { products, currency, cartItems } = context;
+  const { products, currency, cartItems, updateQuantity } = context;
   const [cartData, setCartData] = useState<CartItem[]>([]);
   useEffect(() => {
     const tempData: CartItem[] = [];
@@ -77,12 +77,18 @@ const Cart = () => {
                 </div>
               </div>
               <input
+                onChange={(e) => {
+                  const target = e.target as HTMLInputElement; // Cast to HTMLInputElement
+                  if (target.value === "" || target.value === "0") return;
+                  updateQuantity(item._id, item.size, Number(target.value));
+                }}
                 className="border max-w-10 sm:max-w-20 px-1 sm:px-2 py-1"
                 type="number"
                 min={1}
-                defaultValue={item.quality}
+                value={item.quality}
               />
               <img
+                onClick={() => updateQuantity(item._id, item.size, 0)}
                 className="w-4 mr-4 sm:w-5 cursor-pointer"
                 src={icons.bin_icon}
                 alt=""
