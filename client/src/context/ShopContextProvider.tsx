@@ -1,74 +1,8 @@
-// import { ReactNode } from "react";
-
-// import { ShopContext, contextValue } from "./ShopContext";
-
-// interface ShopContextProvideProps {
-//   children: ReactNode;
-// }
-
-// const ShopContextProvider: React.FC<ShopContextProvideProps> = ({
-//   children,
-// }) => {
-//   return (
-//     <ShopContext.Provider value={contextValue}>{children}</ShopContext.Provider>
-//   );
-// };
-
-// export default ShopContextProvider;
-
-// import { ReactNode, useState } from "react";
-// import { ShopContext } from "./ShopContext";
-// import { products } from "../assets/assets";
-
-// interface ShopContextProvideProps {
-//   children: ReactNode;
-// }
-
-// const ShopContextProvider: React.FC<ShopContextProvideProps> = ({
-//   children,
-// }) => {
-//   const [search, setSearch] = useState("");
-//   const [showSearch, setShowSearch] = useState(false);
-//   const [cartItems, setCartItems] = useState({});
-
-//   const addToCart = async (itemId, size) => {
-//     const cartData = structuredClone(cartItems);
-//     if (cartData[itemId][size]) {
-//       if (cartData[itemId][size]) {
-//         cartData[itemId][size] += 1;
-//       } else {
-//         cartData[itemId][size] = 1;
-//       }
-//     } else {
-//       cartData[itemId] = {};
-//       cartData[itemId][size] = 1;
-//     }
-//     setCartItems(cartData);
-//   };
-
-//   const contextValue = {
-//     products,
-//     currency: "$",
-//     delivery_fee: 10,
-//     search,
-//     setSearch,
-//     showSearch,
-//     setShowSearch,
-//     cartItems,
-//     addToCart,
-//   };
-
-//   return (
-//     <ShopContext.Provider value={contextValue}>{children}</ShopContext.Provider>
-//   );
-// };
-
-// export default ShopContextProvider;
-
 import { ReactNode, useEffect, useState } from "react";
 import { ShopContext, ShopContextType } from "./ShopContext";
 import { products } from "../assets/assets";
 import { toast } from "react-toastify";
+import { useNavigate } from "react-router-dom";
 
 // Define CartItems structure
 interface CartItems {
@@ -87,6 +21,7 @@ const ShopContextProvider: React.FC<ShopContextProviderProps> = ({
   const [search, setSearch] = useState("");
   const [showSearch, setShowSearch] = useState(false);
   const [cartItems, setCartItems] = useState<CartItems>({});
+  const navigate = useNavigate();
 
   const addToCart = (itemId: string, size: string): void => {
     if (!size) {
@@ -109,6 +44,7 @@ const ShopContextProvider: React.FC<ShopContextProviderProps> = ({
       return updatedCartItems;
     });
   };
+
   const getCartCount = (): number => {
     let totalCount = 0;
     for (const itemId in cartItems) {
@@ -124,23 +60,31 @@ const ShopContextProvider: React.FC<ShopContextProviderProps> = ({
     }
     return totalCount;
   };
+
   const updateQuantity = (itemId: string, size: string, quantity: number) => {
-    const cartData = structuredClone(cartItems);
-    cartData[itemId][size] = quantity;
-    setCartItems(cartData);
+    setCartItems((prevCartItems) => {
+      const updatedCartItems = { ...prevCartItems };
+      if (updatedCartItems[itemId] && updatedCartItems[itemId][size]) {
+        updatedCartItems[itemId][size] = quantity;
+      }
+      return updatedCartItems;
+    });
   };
-  // Update Quantity Function
-  // const updateQuantity = (itemId: string, size: string, quantity: number) => {
-  //   setCartItems((prevCartItems) => {
-  //     const updatedCartItems = { ...prevCartItems };
 
-  //     if (updatedCartItems[itemId] && updatedCartItems[itemId][size]) {
-  //       updatedCartItems[itemId][size] = quantity;
-  //     }
-
-  //     return updatedCartItems;
-  //   });
-  // };
+  const getCartAmount = (): number => {
+    let totalAmount = 0;
+    for (const itemId in cartItems) {
+      const itemInfo = products.find((product) => product._id === itemId);
+      if (!itemInfo) {
+        console.warn(`Product with ${itemId} is not found`);
+        continue;
+      }
+      for (const size in cartItems[itemId]) {
+        totalAmount += itemInfo.originalPrice * cartItems[itemId][size];
+      }
+    }
+    return totalAmount;
+  };
 
   useEffect(() => {
     console.log(cartItems);
@@ -160,6 +104,8 @@ const ShopContextProvider: React.FC<ShopContextProviderProps> = ({
     addToCart,
     getCartCount,
     updateQuantity,
+    getCartAmount,
+    navigate,
   };
 
   return (

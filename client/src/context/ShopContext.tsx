@@ -66,6 +66,8 @@ export interface ShopContextType {
   addToCart: (itemId: string, size: string) => void;
   getCartCount: () => number;
   updateQuantity: (itemId: string, size: string, quantity: number) => void;
+  getCartAmount: () => number;
+  navigate: (path: string) => void;
 }
 
 export const ShopContext = createContext<ShopContextType | undefined>(

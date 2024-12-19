@@ -2,6 +2,7 @@ import React, { useContext, useEffect, useState } from "react";
 import { ShopContext } from "../context/ShopContext";
 import Title from "../components/Title";
 import { icons } from "../assets/assets";
+import CartTotal from "../components/CartTotal";
 
 interface CartItem {
   _id: string;
@@ -14,7 +15,7 @@ const Cart: React.FC = () => {
   if (!context) {
     throw new Error("Something must be wrong with ShopContextProvider");
   }
-  const { products, currency, cartItems, updateQuantity } = context;
+  const { products, currency, cartItems, updateQuantity, navigate } = context;
   const [cartData, setCartData] = useState<CartItem[]>([]);
   useEffect(() => {
     const tempData: CartItem[] = [];
@@ -96,6 +97,19 @@ const Cart: React.FC = () => {
             </div>
           );
         })}
+      </div>
+      <div className="flex justify-end my-20">
+        <div className="w-full sm:w-[450px]">
+          <CartTotal />
+          <div className="w-full text-end">
+            <button
+              onClick={() => navigate("/placeorder")}
+              className="bg-black text-white text-sm my-8 px-8 py-3"
+            >
+              Proceed to CheckOut
+            </button>
+          </div>
+        </div>
       </div>
     </div>
   );
