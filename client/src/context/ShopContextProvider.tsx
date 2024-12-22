@@ -4,7 +4,6 @@ import { products } from "../assets/assets";
 import { toast } from "react-toastify";
 import { useNavigate } from "react-router-dom";
 
-// Define CartItems structure
 interface CartItems {
   [itemId: string]: {
     [size: string]: number;
@@ -23,74 +22,69 @@ const ShopContextProvider: React.FC<ShopContextProviderProps> = ({
   const [cartItems, setCartItems] = useState<CartItems>({});
   const navigate = useNavigate();
 
+  const updatedCartState = (updater: (prev: CartItems) => CartItems) => {
+    setCartItems((prevCartItems) => updater(prevCartItems));
+  };
+
   const addToCart = (itemId: string, size: string): void => {
     if (!size) {
       toast.error("Please select the size before adding into the cart");
       return;
     }
-    setCartItems((prevCartItems) => {
+    updatedCartState((prevCartItems) => {
       const updatedCartItems = { ...prevCartItems };
-
-      if (!updatedCartItems[itemId]) {
-        updatedCartItems[itemId] = {};
-      }
-
-      if (updatedCartItems[itemId][size]) {
-        updatedCartItems[itemId][size] += 1;
-      } else {
-        updatedCartItems[itemId][size] = 1;
-      }
-
+      updatedCartItems[itemId] = updatedCartItems[itemId] || {};
+      updatedCartItems[itemId][size] =
+        (updatedCartItems[itemId][size] || 0) + 1;
       return updatedCartItems;
     });
   };
 
-  const getCartCount = (): number => {
-    let totalCount = 0;
-    for (const itemId in cartItems) {
-      for (const size in cartItems[itemId]) {
-        try {
-          if (cartItems[itemId][size] > 0) {
-            totalCount += cartItems[itemId][size];
-          }
-        } catch (error) {
-          console.log(error);
-        }
-      }
-    }
-    return totalCount;
-  };
+  const getCartCount = (): number =>
+    Object.values(cartItems).reduce(
+      (total, sizes) =>
+        total +
+        Object.values(sizes).reduce(
+          (subTotal, quantity) => subTotal + quantity,
+          0,
+        ),
+      0,
+    );
 
   const updateQuantity = (itemId: string, size: string, quantity: number) => {
-    setCartItems((prevCartItems) => {
+    updatedCartState((prevCartItems) => {
       const updatedCartItems = { ...prevCartItems };
-      if (updatedCartItems[itemId] && updatedCartItems[itemId][size]) {
+      if (quantity > 0) {
+        updatedCartItems[itemId] = updatedCartItems[itemId] || {};
         updatedCartItems[itemId][size] = quantity;
+      } else {
+        if (updatedCartItems[itemId]) {
+          delete updatedCartItems[itemId][size];
+          if (Object.keys(updatedCartItems[itemId]).length === 0) {
+            delete updatedCartItems[itemId];
+          }
+        }
       }
       return updatedCartItems;
     });
   };
 
-  const getCartAmount = (): number => {
-    let totalAmount = 0;
-    for (const itemId in cartItems) {
-      const itemInfo = products.find((product) => product._id === itemId);
-      if (!itemInfo) {
-        console.warn(`Product with ${itemId} is not found`);
-        continue;
-      }
-      for (const size in cartItems[itemId]) {
-        totalAmount += itemInfo.originalPrice * cartItems[itemId][size];
-      }
-    }
-    return totalAmount;
-  };
+  const getCartAmount = (): number =>
+    Object.entries(cartItems).reduce((total, [itemId, sizes]) => {
+      const itemInfo = products.find((product) => product._id === itemId) ?? {
+        originalPrice: 0,
+      };
+      const totalItem = Object.values(sizes).reduce(
+        (subTotal, quantity) => subTotal + quantity * itemInfo.originalPrice,
+        0,
+      );
+      return total + totalItem;
+    }, 0);
 
   useEffect(() => {
-    console.log(cartItems);
+    console.log("Cart Items From ShopContextProvider: ", cartItems);
   }, [cartItems]);
 
-  // Define the contextValue object
   const contextValue: ShopContextType = {
     products,
     currency: "฿",

@@ -32,7 +32,7 @@ const Cart: React.FC = () => {
       }
     }
     setCartData(tempData);
-    console.log(tempData);
+    console.log("Cart Items from Cart: ", tempData);
   }, [cartItems]);
   return (
     <div className="border-t pt-14">
