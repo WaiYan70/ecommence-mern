@@ -19,8 +19,15 @@ const ShopContextProvider: React.FC<ShopContextProviderProps> = ({
 }) => {
   const [search, setSearch] = useState("");
   const [showSearch, setShowSearch] = useState(false);
-  const [cartItems, setCartItems] = useState<CartItems>({});
+  const [cartItems, setCartItems] = useState<CartItems>(() => {
+    const savedCart = localStorage.getItem("cartItems");
+    return savedCart ? JSON.parse(savedCart) : {};
+  });
   const navigate = useNavigate();
+
+  useEffect(() => {
+    localStorage.setItem("cartItems", JSON.stringify(cartItems));
+  }, [cartItems]);
 
   const updatedCartState = (updater: (prev: CartItems) => CartItems) => {
     setCartItems((prevCartItems) => updater(prevCartItems));
