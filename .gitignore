@@ -4,5 +4,10 @@ node_modules
 /frontend/src/assets
 
 /client/src/assets
+/client/src/context/ShopContextProviderSolution.tsx
+
+/server/secret.txt
 
 *.env
+
+.DS_Store

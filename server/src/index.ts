@@ -4,14 +4,20 @@ import dotenv from "dotenv";
 import "dotenv/config";
 import connectDataBase from "./config/mongodb";
 import connectCloudinary from "./config/cloudinary";
+import userRouter from "./routes/user.route";
 
+// App Config
 const app = express();
 const port: number = 4000;
 connectDataBase();
 connectCloudinary();
 
+// middlewares
 app.use(express.json());
 app.use(cors());
+
+// api endpoints
+app.use("/api/user", userRouter);
 
 app.get("/", (req, res) => {
   res.send("Hello, Express with TypeScript!");
