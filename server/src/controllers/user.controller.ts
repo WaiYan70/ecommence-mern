@@ -37,9 +37,13 @@ const handleError = (res: Response, error: unknown) => {
   return res.json({ success: false, message: "An unknown error occurred" });
 };
 
-const userRegister = async (req: Request<{}, {}, UserInput>, res: Response) => {
+// const userRegister = async (req: Request<{}, {}, UserInput>, res: Response) => {
+const userRegister = async (
+  req: Request<{}, {}, UserInput>,
+  res: Response,
+): Promise<void> => {
   try {
-    const { name, email, password } = req.body;
+    const { name, email, password }: UserInput = req.body;
     if (!name || !email || !password) {
       res.json({ success: false, message: "All fields are required" });
       return;
@@ -64,16 +68,18 @@ const userRegister = async (req: Request<{}, {}, UserInput>, res: Response) => {
     });
     const user = await newUser.save();
     const token = createToken(user._id);
-    console.log("SignUp Successfully. User's Email: ", user.email);
     res.json({ success: true, token });
   } catch (error) {
     handleError(res, error);
   }
 };
 
-const userLogin = async (req: Request<{}, {}, UserInput>, res: Response) => {
+const userLogin = async (
+  req: Request<{}, {}, UserInput>,
+  res: Response,
+): Promise<void> => {
   try {
-    const { email, password } = req.body;
+    const { email, password }: UserInput = req.body;
     const userExists = await userModel.findOne({ email });
     if (!userExists) {
       res.json({ success: false, message: "User doesn't exists" });
@@ -83,7 +89,6 @@ const userLogin = async (req: Request<{}, {}, UserInput>, res: Response) => {
     if (isMatch) {
       const token = createToken(userExists._id);
       res.json({ success: true, token });
-      console.log("Login Successfully. User's Email: ", userExists.email);
     } else {
       res.json({ success: false, message: "Invalid credentials" });
     }
