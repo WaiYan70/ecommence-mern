@@ -100,10 +100,35 @@ const addProduct = async (req: Request, res: Response) => {
   }
 };
 
-const listProducts = async () => {};
+const listProducts = async (req: Request, res: Response) => {
+  try {
+    const listOfProducts = await productModel.find({});
+    res.json({ success: true, listOfProducts });
+  } catch (error) {
+    console.error(error);
+    res.json({ success: false, message: "Fail to Fetch Products List" });
+  }
+};
 
-const removeProduct = async () => {};
+const removeProduct = async (req: Request, res: Response) => {
+  try {
+    await productModel.findByIdAndDelete(req.body.id);
+    res.json({ success: true, message: "Product Removed" });
+  } catch (error) {
+    console.error(error);
+    res.json({ success: false, message: "Fail to Remove" });
+  }
+};
 
-const singleProduct = async () => {};
+const singleProduct = async (req: Request, res: Response) => {
+  try {
+    const { productId } = req.body;
+    const singleProduct = await productModel.findById(productId);
+    res.json({ success: true, singleProduct });
+  } catch (error) {
+    console.error(error);
+    res.json({ success: false, message: "Fail to Fetch Specific One Product" });
+  }
+};
 
 export { addProduct, listProducts, removeProduct, singleProduct };
