@@ -100,6 +100,44 @@ const addProduct = async (req: Request, res: Response) => {
   }
 };
 
+const removeProduct = async (req: Request, res: Response) => {
+  try {
+    const { productId } = req.body;
+    if (!productId) {
+      res.json({ success: false, message: "Product ID is required!" });
+      return;
+    }
+    const deletdProduct = await productModel.findByIdAndDelete(productId);
+    if (!deletdProduct) {
+      res.json({ success: false, message: "Product is not found" });
+      return;
+    }
+    res.json({ success: true, message: "Product Removed Successfully!" });
+  } catch (error) {
+    console.error(error);
+    res.json({ success: false, message: "Failed to Remove Product" });
+  }
+};
+
+const singleProduct = async (req: Request, res: Response) => {
+  try {
+    const { productId } = req.body;
+    if (!productId) {
+      res.json({ success: false, message: "Product ID is required" });
+      return;
+    }
+    const findSingleProduct = await productModel.findById(productId);
+    if (!findSingleProduct) {
+      res.json({ success: false, message: "Product is not found" });
+      return;
+    }
+    res.json({ success: true, data: findSingleProduct });
+  } catch (error) {
+    console.error(error);
+    res.json({ success: false, message: "Fail to Fetch Specific One Product" });
+  }
+};
+
 const listProducts = async (req: Request, res: Response) => {
   try {
     const listOfProducts = await productModel.find({});
@@ -107,27 +145,6 @@ const listProducts = async (req: Request, res: Response) => {
   } catch (error) {
     console.error(error);
     res.json({ success: false, message: "Fail to Fetch Products List" });
-  }
-};
-
-const removeProduct = async (req: Request, res: Response) => {
-  try {
-    await productModel.findByIdAndDelete(req.body.id);
-    res.json({ success: true, message: "Product Removed" });
-  } catch (error) {
-    console.error(error);
-    res.json({ success: false, message: "Fail to Remove" });
-  }
-};
-
-const singleProduct = async (req: Request, res: Response) => {
-  try {
-    const { productId } = req.body;
-    const singleProduct = await productModel.findById(productId);
-    res.json({ success: true, singleProduct });
-  } catch (error) {
-    console.error(error);
-    res.json({ success: false, message: "Fail to Fetch Specific One Product" });
   }
 };
 
