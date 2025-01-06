@@ -98,7 +98,25 @@ const userLogin = async (
 };
 
 const adminLogin = async (req: Request, res: Response) => {
-  res.json({ success: true, message: "Admin Login API Working I suppose so." });
+  try {
+    const { email, password } = req.body;
+    const jwtSecret = process.env.JWT_SECRET;
+    if (!jwtSecret) {
+      res.json({ success: false, message: "JWT_SECRET is not defiend!" });
+      return;
+    }
+    if (
+      email === process.env.ADMIN_EMAIL &&
+      password === process.env.ADMIN_PASSWORD
+    ) {
+      const token = jwt.sign({ email }, jwtSecret, { expiresIn: "1d" });
+      res.json({ success: true, token });
+    } else {
+      res.json({ success: false, message: "Invalid Credentials" });
+    }
+  } catch (error) {
+    handleError(res, error);
+  }
 };
 
 export { userLogin, userRegister, adminLogin };
