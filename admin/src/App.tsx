@@ -7,6 +7,8 @@ import Add from "./pages/Add";
 import List from "./pages/List";
 import Orders from "./pages/Orders";
 
+export const backendURL = import.meta.env.VITE_BACKEND_URL;
+
 const App = () => {
   const [token, setToken] = useState("");
 
