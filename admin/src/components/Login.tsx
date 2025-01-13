@@ -1,25 +1,34 @@
-import { useState } from "react";
+import React, { useState } from "react";
 import { backendURL } from "../App";
 import axios from "axios";
+import { toast } from "react-toastify/unstyled";
 
-const Login = () => {
+type LoginProps = {
+  setToken: React.Dispatch<React.SetStateAction<string>>;
+};
+
+const Login: React.FC<LoginProps> = ({ setToken }) => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const onSubmitHandler = async (event: React.FormEvent<HTMLFormElement>) => {
     try {
       event.preventDefault();
-      const response = await axios.post(backendURL + "/api/user/admin", {
+      const response = await axios.post(`${backendURL}/api/user/admin`, {
         email,
         password,
       });
-      console.log(response);
+      if (response.data.success) {
+        setToken(response.data.token);
+      } else {
+        console.error(response.data.message);
+        toast.error(response.data.message);
+      }
     } catch (error) {
       console.error(error);
     }
   };
   return (
     <div className="min-h-screen flex items-center justify-center w-full">
-      <div>qwerey</div>
       <div className="bg-white shadow-md rounded-lg px-8 py-6 max-w-md">
         <h1 className="text-2xl font-bold mb-4">Admin Panel</h1>
         <form onSubmit={onSubmitHandler}>
@@ -31,6 +40,7 @@ const Login = () => {
               type="email"
               className="rounded-md w-full px-3 py-2 border border-gray-300 outline-none"
               placeholder="Enter your Gmail"
+              onChange={(event) => setEmail(event.target.value)}
               required
             />
           </div>
@@ -40,6 +50,7 @@ const Login = () => {
               type="password"
               className="rounded-md w-full px-3 py-2 border border-gray-300 outline-none"
               placeholder="Enter your Passwod"
+              onChange={(event) => setPassword(event.target.value)}
               required
             />
           </div>
