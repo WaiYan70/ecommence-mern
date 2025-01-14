@@ -1,6 +1,11 @@
+import React from "react";
 import { assets } from "../assets/assets";
 
-const Navbar = () => {
+type NavbarProps = {
+  setToken: React.Dispatch<React.SetStateAction<string>>;
+};
+
+const Navbar: React.FC<NavbarProps> = ({ setToken }) => {
   return (
     <div className="flex items-center py-2 px-[4%] justify-between">
       <img className="max-w-[10%]" src={assets.logo} />
