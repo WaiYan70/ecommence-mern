@@ -1,5 +1,7 @@
 import React, { useState } from "react";
 import { assets } from "../assets/assets";
+import axios from "axios";
+import { backendURL } from "../App";
 
 type AddProps = {
   token: string;
@@ -18,8 +20,37 @@ const Add: React.FC<AddProps> = ({ token }) => {
   const [productSubCategory, setProductSubCategory] = useState("");
   const [productSize, setProductSize] = useState<string[]>([]);
 
+  const onSubmitHandler = async (event: React.FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    try {
+      const formData = new FormData();
+      formData.append("name", productName);
+      formData.append("description", productDescription);
+      formData.append("price", productPrice);
+      formData.append("category", productCategory);
+      formData.append("subCategory", productSubCategory);
+      formData.append("sizes", JSON.stringify(productSize));
+
+      if (image1) formData.append("image1", image1);
+      if (image2) formData.append("image2", image2);
+      if (image3) formData.append("image3", image3);
+      if (image4) formData.append("image4", image4);
+
+      const response = await axios.post(
+        `${backendURL}/api/product/add`,
+        formData,
+      );
+      console.log(response.data);
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
   return (
-    <form className="flex flex-col w-full items-start gap-3">
+    <form
+      onSubmit={onSubmitHandler}
+      className="flex flex-col w-full items-start gap-3"
+    >
       <div>
         <p className="mb-2">Upload Image</p>
         <div className="flex gap-2">
@@ -30,7 +61,7 @@ const Add: React.FC<AddProps> = ({ token }) => {
               alt=""
             />
             <input
-              onChange={(event) => {
+              onChange={(event: React.ChangeEvent<HTMLInputElement>) => {
                 if (event.target.files && event.target.files[0]) {
                   setImage1(event.target.files[0]);
                 }
@@ -47,7 +78,7 @@ const Add: React.FC<AddProps> = ({ token }) => {
               alt=""
             />
             <input
-              onChange={(event) => {
+              onChange={(event: React.ChangeEvent<HTMLInputElement>) => {
                 if (event.target.files && event.target.files[1]) {
                   setImage2(event.target.files[1]);
                 }
@@ -64,7 +95,7 @@ const Add: React.FC<AddProps> = ({ token }) => {
               alt=""
             />
             <input
-              onChange={(event) => {
+              onChange={(event: React.ChangeEvent<HTMLInputElement>) => {
                 if (event.target.files && event.target.files[2]) {
                   setImage3(event.target.files[2]);
                 }
@@ -81,7 +112,7 @@ const Add: React.FC<AddProps> = ({ token }) => {
               alt=""
             />
             <input
-              onChange={(event) => {
+              onChange={(event: React.ChangeEvent<HTMLInputElement>) => {
                 if (event.target.files && event.target.files[3]) {
                   setImage4(event.target.files[3]);
                 }
@@ -96,7 +127,9 @@ const Add: React.FC<AddProps> = ({ token }) => {
       <div className="w-full">
         <p className="mb-2">Product Name</p>
         <input
-          onChange={(event) => setProductName(event.target.value)}
+          onChange={(event: React.ChangeEvent<HTMLInputElement>) =>
+            setProductName(event.target.value)
+          }
           value={productName}
           className="w-full max-w-[500px] px-3 py-2"
           type="text"
@@ -106,9 +139,11 @@ const Add: React.FC<AddProps> = ({ token }) => {
       <div className="w-full">
         <p className="mb-2">Product Description</p>
         <textarea
-          onChange={(event) => setProductDescription(event.target.value)}
+          onChange={(event: React.ChangeEvent<HTMLTextAreaElement>) =>
+            setProductDescription(event.target.value)
+          }
           value={productDescription}
-          className="w-full max-w-[500px] px-3 py-2"
+          className="w-full max-w-[500px] h-[200px] px-3 py-2"
           placeholder="Write Product Description"
         />
       </div>
@@ -116,7 +151,9 @@ const Add: React.FC<AddProps> = ({ token }) => {
         <div>
           <p className="mb-2">Product category</p>
           <select
-            onChange={(event) => setProductCategory(event.target.value)}
+            onChange={(event: React.ChangeEvent<HTMLSelectElement>) =>
+              setProductCategory(event.target.value)
+            }
             className="w-full px-3 py-2"
           >
             <option value="Men">Men</option>
@@ -127,7 +164,9 @@ const Add: React.FC<AddProps> = ({ token }) => {
         <div>
           <p className="mb-2">Sub Category</p>
           <select
-            onChange={(event) => setProductSubCategory(event.target.value)}
+            onChange={(event: React.ChangeEvent<HTMLSelectElement>) =>
+              setProductSubCategory(event.target.value)
+            }
             className="w-full px-3 py-2"
           >
             <option value="T-Shirt">TopWear</option>
@@ -137,7 +176,9 @@ const Add: React.FC<AddProps> = ({ token }) => {
         <div>
           <p className="mb-2">Product Price</p>
           <input
-            onChange={(event) => setProductPrice(event.target.value)}
+            onChange={(event: React.ChangeEvent<HTMLInputElement>) =>
+              setProductPrice(event.target.value)
+            }
             className="w-full px-3 py-2 sm:w-[120px]"
             type="number"
             placeholder="100"
@@ -148,7 +189,7 @@ const Add: React.FC<AddProps> = ({ token }) => {
         <p className="mb-2">Product Sizes</p>
         <div className="flex gap-3">
           <div
-            onChange={() =>
+            onClick={() =>
               setProductSize((prev) =>
                 prev.includes("XXS")
                   ? prev.filter((item: string) => item !== "XXS")
@@ -163,7 +204,7 @@ const Add: React.FC<AddProps> = ({ token }) => {
             </p>
           </div>
           <div
-            onChange={() =>
+            onClick={() =>
               setProductSize((prev) =>
                 prev.includes("XS")
                   ? prev.filter((item: string) => item !== "XS")
@@ -178,7 +219,7 @@ const Add: React.FC<AddProps> = ({ token }) => {
             </p>
           </div>
           <div
-            onChange={() =>
+            onClick={() =>
               setProductSize((prev) =>
                 prev.includes("S")
                   ? prev.filter((item: string) => item !== "S")
@@ -193,7 +234,7 @@ const Add: React.FC<AddProps> = ({ token }) => {
             </p>
           </div>
           <div
-            onChange={() =>
+            onClick={() =>
               setProductSize((prev) =>
                 prev.includes("M")
                   ? prev.filter((item: string) => item !== "M")
@@ -208,7 +249,7 @@ const Add: React.FC<AddProps> = ({ token }) => {
             </p>
           </div>
           <div
-            onChange={() =>
+            onClick={() =>
               setProductSize((prev) =>
                 prev.includes("L")
                   ? prev.filter((item: string) => item !== "L")
@@ -223,7 +264,7 @@ const Add: React.FC<AddProps> = ({ token }) => {
             </p>
           </div>
           <div
-            onChange={() =>
+            onClick={() =>
               setProductSize((prev) =>
                 prev.includes("XL")
                   ? prev.filter((item: string) => item !== "XL")
@@ -238,7 +279,7 @@ const Add: React.FC<AddProps> = ({ token }) => {
             </p>
           </div>
           <div
-            onChange={() =>
+            onClick={() =>
               setProductSize((prev) =>
                 prev.includes("XXL")
                   ? prev.filter((item: string) => item !== "XXL")
