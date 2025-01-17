@@ -39,6 +39,7 @@ const Add: React.FC<AddProps> = ({ token }) => {
       const response = await axios.post(
         `${backendURL}/api/product/add`,
         formData,
+        { headers: { token } },
       );
       console.log(response.data);
     } catch (error) {
@@ -79,8 +80,8 @@ const Add: React.FC<AddProps> = ({ token }) => {
             />
             <input
               onChange={(event: React.ChangeEvent<HTMLInputElement>) => {
-                if (event.target.files && event.target.files[1]) {
-                  setImage2(event.target.files[1]);
+                if (event.target.files && event.target.files[0]) {
+                  setImage2(event.target.files[0]);
                 }
               }}
               type="file"
@@ -96,8 +97,8 @@ const Add: React.FC<AddProps> = ({ token }) => {
             />
             <input
               onChange={(event: React.ChangeEvent<HTMLInputElement>) => {
-                if (event.target.files && event.target.files[2]) {
-                  setImage3(event.target.files[2]);
+                if (event.target.files && event.target.files[0]) {
+                  setImage3(event.target.files[0]);
                 }
               }}
               type="file"
@@ -113,12 +114,12 @@ const Add: React.FC<AddProps> = ({ token }) => {
             />
             <input
               onChange={(event: React.ChangeEvent<HTMLInputElement>) => {
-                if (event.target.files && event.target.files[3]) {
-                  setImage4(event.target.files[3]);
+                if (event.target.files && event.target.files[0]) {
+                  setImage4(event.target.files[0]);
                 }
               }}
               type="file"
-              id="image3"
+              id="image4"
               hidden
             />
           </label>
@@ -149,12 +150,12 @@ const Add: React.FC<AddProps> = ({ token }) => {
       </div>
       <div className="flex flex-col sm:flex-row gap-2 w-full sm:gap-8">
         <div>
-          <p className="mb-2">Product category</p>
+          <p className="mb-2">Category</p>
           <select
             onChange={(event: React.ChangeEvent<HTMLSelectElement>) =>
               setProductCategory(event.target.value)
             }
-            className="w-full px-3 py-2"
+            className="w-full pl-1 pr-5 py-2"
           >
             <option value="Men">Men</option>
             <option value="Women">Women</option>
@@ -167,9 +168,9 @@ const Add: React.FC<AddProps> = ({ token }) => {
             onChange={(event: React.ChangeEvent<HTMLSelectElement>) =>
               setProductSubCategory(event.target.value)
             }
-            className="w-full px-3 py-2"
+            className="w-full pl-1 pr-5 py-2"
           >
-            <option value="T-Shirt">TopWear</option>
+            <option value="T-Shirt">T-Shirt</option>
             <option value="Jean">Jean</option>
           </select>
         </div>
@@ -268,7 +269,7 @@ const Add: React.FC<AddProps> = ({ token }) => {
               setProductSize((prev) =>
                 prev.includes("XL")
                   ? prev.filter((item: string) => item !== "XL")
-                  : [...prev, "Xl"],
+                  : [...prev, "XL"],
               )
             }
           >
