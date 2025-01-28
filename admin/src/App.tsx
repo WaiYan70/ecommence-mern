@@ -28,7 +28,7 @@ const App = () => {
       {token === "" ? (
         <Login setToken={setToken} />
       ) : (
-        <div>
+        <>
           <Navbar setToken={setToken} />
           <hr />
           <div className="flex w-full">
@@ -41,7 +41,7 @@ const App = () => {
               </Routes>
             </div>
           </div>
-        </div>
+        </>
       )}
     </div>
   );

@@ -16,17 +16,36 @@ const Add: React.FC<AddProps> = ({ token }) => {
   const [productName, setProductName] = useState("");
   const [productDescription, setProductDescription] = useState("");
   const [productPrice, setProductPrice] = useState("");
-  const [productCategory, setProductCategory] = useState("");
-  const [productSubCategory, setProductSubCategory] = useState("");
+  const [productCategory, setProductCategory] = useState("Men");
+  const [productSubCategory, setProductSubCategory] = useState("T-Shirt");
   const [productSize, setProductSize] = useState<string[]>([]);
 
   const onSubmitHandler = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
+    if (
+      !productName ||
+      !productDescription ||
+      !productPrice ||
+      !productCategory ||
+      !productSubCategory
+    ) {
+      alert("Please fill in all required fields");
+      return;
+    }
+    if (productSize.length === 0) {
+      alert("Please upload at least one size");
+      return;
+    }
+    if (!image1 && !image2 && !image3 && !image4) {
+      alert("Please upload at least one image");
+      return;
+    }
+
     try {
       const formData = new FormData();
-      formData.append("name", productName);
+      formData.append("title", productName);
       formData.append("description", productDescription);
-      formData.append("price", productPrice);
+      formData.append("originalPrice", productPrice);
       formData.append("category", productCategory);
       formData.append("subCategory", productSubCategory);
       formData.append("sizes", JSON.stringify(productSize));
@@ -36,10 +55,15 @@ const Add: React.FC<AddProps> = ({ token }) => {
       if (image3) formData.append("image3", image3);
       if (image4) formData.append("image4", image4);
 
+      // console.log(formData);
+      // for (const [key, value] of formData.entries()) {
+      //   console.log(`${key}:`, value);
+      // }
+
       const response = await axios.post(
         `${backendURL}/api/product/add`,
         formData,
-        { headers: { token } },
+        { headers: { "Content-Type": "multipart/form-data", token } },
       );
       console.log(response.data);
     } catch (error) {
