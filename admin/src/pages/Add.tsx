@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import { assets } from "../assets/assets";
 import axios from "axios";
 import { backendURL } from "../App";
+import { toast } from "react-toastify";
 
 type AddProps = {
   token: string;
@@ -55,17 +56,19 @@ const Add: React.FC<AddProps> = ({ token }) => {
       if (image3) formData.append("image3", image3);
       if (image4) formData.append("image4", image4);
 
-      // console.log(formData);
-      // for (const [key, value] of formData.entries()) {
-      //   console.log(`${key}:`, value);
-      // }
-
       const response = await axios.post(
         `${backendURL}/api/product/add`,
         formData,
         { headers: { "Content-Type": "multipart/form-data", token } },
       );
       console.log(response.data);
+      if (response.data.success) {
+        toast.success(response.data.message);
+        setProductName("");
+        setProductDescription("");
+      } else {
+        toast.error(response.data.message);
+      }
     } catch (error) {
       console.log(error);
     }
@@ -155,6 +158,7 @@ const Add: React.FC<AddProps> = ({ token }) => {
           onChange={(event: React.ChangeEvent<HTMLInputElement>) =>
             setProductName(event.target.value)
           }
+          required
           value={productName}
           className="w-full max-w-[500px] px-3 py-2"
           type="text"
@@ -167,6 +171,7 @@ const Add: React.FC<AddProps> = ({ token }) => {
           onChange={(event: React.ChangeEvent<HTMLTextAreaElement>) =>
             setProductDescription(event.target.value)
           }
+          required
           value={productDescription}
           className="w-full max-w-[500px] h-[200px] px-3 py-2"
           placeholder="Write Product Description"
