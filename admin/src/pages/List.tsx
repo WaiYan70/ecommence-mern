@@ -7,21 +7,25 @@ type ListProps = {
   token: string;
 };
 
-type Item = {
+type Product = {
   image: string[];
-  name: string;
+  title: string;
   category: string;
   originalPrice: number;
 };
 
 const List: React.FC<ListProps> = ({ token }) => {
-  const [itemList, setItemList] = useState([]);
+  const [list, setList] = useState<Product[]>([]);
 
   const fetchItemList = async () => {
     try {
       const response = await axios.get(`${backendURL}/api/product/list`);
+      console.log(response.data);
       if (response.data.success) {
-        setItemList(response.data.products);
+        // setList(response.data.products ? response.data.products : []);
+        setList(
+          response.data.listOfProducts ? response.data.listOfProducts : [],
+        );
       } else {
         toast.error(response.data.message);
       }
@@ -42,25 +46,28 @@ const List: React.FC<ListProps> = ({ token }) => {
     <>
       <p className="mb-2">List of All Items</p>
       <div className="flex flex-col gap-2">
-        <div className="hidden md:grid grid-cols-[1fr_3fr_1fr_1fr] items-center px-2 border bg-gray-100 text-sm">
+        <div className="hidden md:grid grid-cols-[1fr_3fr_1fr_1fr_1fr] items-center px-2 border bg-gray-100 text-sm">
           <b>Image</b>
           <b>Name</b>
           <b>Category</b>
           <b>Price</b>
+          <b className="text-center">Action</b>
         </div>
-        {itemList.map((item, index) => (
+        {list.map((item, index) => (
           <div
             key={index}
-            className="grid grid-cols-[1fr_3fr_1fr] md:grid-cols-[1fr_3fr_1fr_1fr] items-center gap-2 py-1 px-2 border text-sm"
+            className="grid grid-cols-[1fr_3fr_1fr] md:grid-cols-[1fr_3fr_1fr_1fr_1fr] items-center gap-2 py-1 px-2 border text-sm"
           >
             <img src={item.image[0]} className="w-12" alt="" />
-            <p>{item.name}</p>
+            <p>{item.title}</p>
             <p>{item.category}</p>
             <p>
               {item.originalPrice}
               {currency}
             </p>
-            <p></p>
+            <p className="text-right md:text-center cursor-pointer text-lg">
+              X
+            </p>
           </div>
         ))}
       </div>
