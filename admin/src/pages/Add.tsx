@@ -66,11 +66,22 @@ const Add: React.FC<AddProps> = ({ token }) => {
         toast.success(response.data.message);
         setProductName("");
         setProductDescription("");
+        setImage1(null);
+        setImage2(null);
+        setImage3(null);
+        setImage4(null);
+        setProductPrice("");
+        setProductSize([]);
       } else {
         toast.error(response.data.message);
       }
     } catch (error) {
       console.log(error);
+      if (error instanceof Error) {
+        toast.error(error.message);
+      } else {
+        toast.error("An unexpected error occurred");
+      }
     }
   };
 
@@ -209,6 +220,7 @@ const Add: React.FC<AddProps> = ({ token }) => {
             onChange={(event: React.ChangeEvent<HTMLInputElement>) =>
               setProductPrice(event.target.value)
             }
+            value={productPrice}
             className="w-full px-3 py-2 sm:w-[120px]"
             type="number"
             placeholder="100"

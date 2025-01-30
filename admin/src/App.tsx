@@ -6,10 +6,11 @@ import Login from "./components/Login";
 import Add from "./pages/Add";
 import List from "./pages/List";
 import Orders from "./pages/Orders";
-import { ToastContainer } from "react-toastify/unstyled";
+import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 
 export const backendURL = import.meta.env.VITE_BACKEND_URL;
+export const currency = "THB";
 
 const App = () => {
   const [token, setToken] = useState<string>(
