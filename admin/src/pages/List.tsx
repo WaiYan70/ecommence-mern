@@ -8,6 +8,7 @@ type ListProps = {
 };
 
 type Product = {
+  _id: string;
   image: string[];
   title: string;
   category: string;
@@ -22,7 +23,6 @@ const List: React.FC<ListProps> = ({ token }) => {
       const response = await axios.get(`${backendURL}/api/product/list`);
       console.log(response.data);
       if (response.data.success) {
-        // setList(response.data.products ? response.data.products : []);
         setList(
           response.data.listOfProducts ? response.data.listOfProducts : [],
         );
@@ -38,6 +38,31 @@ const List: React.FC<ListProps> = ({ token }) => {
       }
     }
   };
+
+  const removeProduct = async (id: string) => {
+    try {
+      const response = await axios.post(
+        `${backendURL}/api/product/remove`,
+        { productId: id },
+        { headers: { token } },
+      );
+      console.log(response.data.success);
+      if (response.data.success) {
+        toast.success(response.data.message);
+        await fetchItemList();
+      } else {
+        toast.error(response.data.message);
+      }
+    } catch (error) {
+      console.log(error);
+      if (error instanceof Error) {
+        toast.error(error.message);
+      } else {
+        toast.error("An Unexpected Error occurred");
+      }
+    }
+  };
+
   useEffect(() => {
     fetchItemList();
   }, []);
@@ -65,7 +90,10 @@ const List: React.FC<ListProps> = ({ token }) => {
               {item.originalPrice}
               {currency}
             </p>
-            <p className="text-right md:text-center cursor-pointer text-lg">
+            <p
+              onClick={() => removeProduct(item._id)}
+              className="text-right md:text-center cursor-pointer text-lg"
+            >
               X
             </p>
           </div>
