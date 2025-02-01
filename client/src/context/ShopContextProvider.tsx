@@ -1,8 +1,9 @@
 import { ReactNode, useEffect, useState } from "react";
 import { ShopContext, ShopContextType } from "./ShopContext";
-import { products } from "../assets/assets";
+import { Product } from "../assets/assets";
 import { toast } from "react-toastify";
 import { useNavigate } from "react-router-dom";
+import axios from "axios";
 
 interface CartItems {
   [itemId: string]: {
@@ -23,7 +24,9 @@ const ShopContextProvider: React.FC<ShopContextProviderProps> = ({
     const savedCart = localStorage.getItem("cartItems");
     return savedCart ? JSON.parse(savedCart) : {};
   });
+  const [products, setProducts] = useState<Product[]>([]);
   const navigate = useNavigate();
+  const backendURL = import.meta.env.VITE_BACKEND_URL;
 
   useEffect(() => {
     localStorage.setItem("cartItems", JSON.stringify(cartItems));
@@ -92,8 +95,32 @@ const ShopContextProvider: React.FC<ShopContextProviderProps> = ({
     console.log("Cart Items From ShopContextProvider: ", cartItems);
   }, [cartItems]);
 
+  const getProductsData = async () => {
+    try {
+      const response = await axios.get(`${backendURL}/api/product/list`);
+      console.log(response.data);
+      if (response.data.success) {
+        setProducts(response.data.products);
+      } else {
+        toast.error(response.data.message);
+      }
+    } catch (error) {
+      console.log(error);
+      if (error instanceof Error) {
+        toast.error(error.message);
+      } else {
+        toast.error("An unexpected error occurred");
+      }
+    }
+  };
+
+  useEffect(() => {
+    getProductsData();
+  }, []);
+
   const contextValue: ShopContextType = {
     products,
+    setProducts,
     currency: "฿",
     delivery_fee: 10,
     search,
@@ -107,6 +134,8 @@ const ShopContextProvider: React.FC<ShopContextProviderProps> = ({
     updateQuantity,
     getCartAmount,
     navigate,
+    backendURL,
+    getProductsData,
   };
 
   return (

@@ -7,13 +7,17 @@ import ProductItem from "./ProductItem";
 
 const LatestCollection: React.FC = () => {
   const context = useContext(ShopContext);
+  console.log(context);
+  if (!context) {
+    throw new Error("Something is wrong with Shop Context Provider");
+  }
   const [latestProducts, setLatestProducts] = useState<Product[]>([]);
 
   useEffect(() => {
     if (context?.products) {
       setLatestProducts(context.products.slice(0, 10));
     }
-  }, [context]);
+  }, [context?.products]);
 
   return (
     <div className="my-10">

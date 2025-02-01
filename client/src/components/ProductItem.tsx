@@ -17,7 +17,9 @@ const ProductItem: React.FC<ProductItemProps> = ({
   originalPrice,
 }) => {
   const context = useContext(ShopContext);
+  console.log("🔍 ProductItem Context:", context);
   if (!context) {
+    console.error("❌ ShopContext is undefined in ProductItem.tsx!");
     return null;
   }
   const { currency } = context;

@@ -1,16 +1,17 @@
 import { createContext } from "react";
 import { Product } from "../assets/assets";
 
-// Define CartItems structure
 interface CartItems {
   [itemId: string]: {
     [size: string]: number;
   };
 }
 
-// Update ShopContextType to include all properties
 export interface ShopContextType {
+  backendURL: string;
   products: Product[];
+  setProducts: React.Dispatch<React.SetStateAction<Product[]>>;
+  getProductsData: () => void;
   currency: string;
   delivery_fee: number;
   search: string;
