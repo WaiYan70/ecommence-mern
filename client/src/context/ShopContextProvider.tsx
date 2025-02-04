@@ -1,4 +1,4 @@
-import { ReactNode, useEffect, useState } from "react";
+import { ReactNode, useCallback, useEffect, useState } from "react";
 import { ShopContext, ShopContextType } from "./ShopContext";
 import { Product } from "../assets/assets";
 import { toast } from "react-toastify";
@@ -30,6 +30,7 @@ const ShopContextProvider: React.FC<ShopContextProviderProps> = ({
 
   useEffect(() => {
     localStorage.setItem("cartItems", JSON.stringify(cartItems));
+    console.log("Cart Items From ShopContextProvider: ", cartItems);
   }, [cartItems]);
 
   const updatedCartState = (updater: (prev: CartItems) => CartItems) => {
@@ -91,32 +92,28 @@ const ShopContextProvider: React.FC<ShopContextProviderProps> = ({
       return total + totalItem;
     }, 0);
 
-  useEffect(() => {
-    console.log("Cart Items From ShopContextProvider: ", cartItems);
-  }, [cartItems]);
-
-  const getProductsData = async () => {
+  const getProductsData = useCallback(async () => {
     try {
       const response = await axios.get(`${backendURL}/api/product/list`);
       console.log(response.data);
       if (response.data.success) {
-        setProducts(response.data.products);
+        setProducts(response.data.listOfProducts);
       } else {
         toast.error(response.data.message);
       }
     } catch (error) {
-      console.log(error);
+      console.error("Error fetching products", error);
       if (error instanceof Error) {
         toast.error(error.message);
       } else {
         toast.error("An unexpected error occurred");
       }
     }
-  };
+  }, [backendURL]);
 
   useEffect(() => {
     getProductsData();
-  }, []);
+  }, [getProductsData]);
 
   const contextValue: ShopContextType = {
     products,

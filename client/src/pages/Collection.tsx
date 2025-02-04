@@ -1,90 +1,140 @@
-import { useCallback, useContext, useEffect, useState } from "react";
+import React, {
+  useCallback,
+  useContext,
+  useEffect,
+  useMemo,
+  useState,
+} from "react";
 import { ShopContext } from "../context/ShopContext";
 import { icons, Product } from "../assets/assets";
 
 import Title from "../components/Title";
 import ProductItem from "../components/ProductItem";
 
+type SortType = "relavent" | "low-high" | "high-low";
+
 const Collection: React.FC = () => {
   const context = useContext(ShopContext);
   if (!context) {
     throw new Error("ShopContext must be used within a ShopContextProvider");
   }
-  const { search, showSearch } = context;
+  const { search, showSearch, products } = context;
   const [showFilter, setShowFilter] = useState<boolean>(false);
   const [filterProducts, setFilterProducts] = useState<Product[]>([]);
   const [category, setCategory] = useState<string[]>([]);
   const [subCategory, setSubCategory] = useState<string[]>([]);
-  const [sortType, setSortType] = useState("relavent");
+  const [sortType, setSortType] = useState<SortType>("relavent");
 
-  const toggleCategory = (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (category.includes(e.target.value)) {
-      setCategory((prev) => prev.filter((item) => item !== e.target.value));
-    } else {
-      setCategory((prev) => [...prev, e.target.value]);
-    }
-  };
+  const toggleCategory = useCallback(
+    (event: React.ChangeEvent<HTMLInputElement>) => {
+      const value = event.target.value;
+      setCategory((prev) =>
+        prev.includes(value)
+          ? prev.filter((item) => item !== value)
+          : [...prev, value],
+      );
+    },
+    [],
+  );
 
-  const toggleSubCategory = (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (subCategory.includes(e.target.value)) {
-      setSubCategory((prev) => prev.filter((item) => item !== e.target.value));
-    } else {
-      setSubCategory((prev) => [...prev, e.target.value]);
-    }
-  };
+  const toggleSubCategory = useCallback(
+    (event: React.ChangeEvent<HTMLInputElement>) => {
+      const value = event.target.value;
+      setSubCategory((prev) =>
+        prev.includes(value)
+          ? prev.filter((item) => item !== value)
+          : [...prev, value],
+      );
+    },
+    [],
+  );
 
-  const applyFilter = useCallback(() => {
-    let productsCopy = context?.products?.slice() ?? [];
+  const filterFunctions = useMemo(
+    () => ({
+      searchFilter: (items: Product[], searchTerms: string) =>
+        items.filter((item) => {
+          item.title.toLowerCase().includes(searchTerms.toLowerCase());
+        }),
+      categoryFilter: (items: Product[], categories: string[]) =>
+        categories.length === 0
+          ? items
+          : items.filter((item) => categories.includes(item.category)),
+      subCategoryFilter: (items: Product[], subCategories: string[]) =>
+        subCategories.length === 0
+          ? items
+          : items.filter((item) => subCategories.includes(item.subCategory)),
+      sortProducts: (items: Product[], type: SortType) => {
+        const sortedItems = [...items];
+        switch (type) {
+          case "low-high":
+            return sortedItems.sort(
+              (a, b) => a.originalPrice - b.originalPrice,
+            );
+          case "high-low":
+            return sortedItems.sort(
+              (a, b) => b.originalPrice - a.originalPrice,
+            );
+          default:
+            return sortedItems;
+        }
+      },
+    }),
+    [],
+  );
+
+  useEffect(() => {
+    if (!products) return;
+    let filteredProducts = [...products];
     if (showSearch && search) {
-      productsCopy = productsCopy.filter((item) =>
-        item.title.toLowerCase().includes(search.toLowerCase()),
-      );
+      filteredProducts = filterFunctions.searchFilter(filteredProducts, search);
     }
-    if (category.length > 0) {
-      productsCopy = productsCopy.filter((item) =>
-        category.includes(item.category),
-      );
-    }
-    if (subCategory.length > 0) {
-      productsCopy = productsCopy.filter((item) =>
-        subCategory.includes(item.subCategory),
-      );
-    }
-    setFilterProducts(productsCopy);
-  }, [context?.products, category, subCategory, search, showSearch]);
-
-  const sortProducts = () => {
-    const filterProductsCopy = filterProducts.slice();
-    switch (sortType) {
-      case "low-high":
-        setFilterProducts(
-          filterProductsCopy.sort((a, b) => a.originalPrice - b.originalPrice),
-        );
-        break;
-      case "high-low":
-        setFilterProducts(
-          filterProductsCopy.sort((a, b) => b.originalPrice - a.originalPrice),
-        );
-        break;
-      default:
-        applyFilter();
-        break;
-    }
-  };
+    filteredProducts = filterFunctions.categoryFilter(
+      filteredProducts,
+      category,
+    );
+    filteredProducts = filterFunctions.subCategoryFilter(
+      filteredProducts,
+      subCategory,
+    );
+    filteredProducts = filterFunctions.sortProducts(filteredProducts, sortType);
+    setFilterProducts(filteredProducts);
+  }, [
+    products,
+    category,
+    subCategory,
+    search,
+    showSearch,
+    sortType,
+    filterFunctions,
+  ]);
 
   useEffect(() => {
-    if (context?.products) {
-      setFilterProducts(context.products);
+    if (products?.length) {
+      setFilterProducts(products);
     }
-  }, [context]);
+  }, [products]);
 
-  useEffect(() => {
-    applyFilter();
-  }, [applyFilter]);
-
-  useEffect(() => {
-    sortProducts();
-  }, [sortType]);
+  const renderCheckBoxItem = useCallback(
+    (
+      value: string,
+      handler: (event: React.ChangeEvent<HTMLInputElement>) => void,
+      isCategory: boolean,
+    ) => (
+      <p className="flex gap-2" key={value}>
+        <input
+          className="w-4"
+          type="checkbox"
+          value={value}
+          onChange={handler}
+          checked={
+            isCategory ? category.includes(value) : subCategory.includes(value)
+          }
+        />
+        {value}
+      </p>
+    ),
+    [category, subCategory],
+  );
 
   return (
     <div className="flex flex-col sm:flex-row gap-1 sm:gap-10 pt-10 border-t">
@@ -108,33 +158,9 @@ const Collection: React.FC = () => {
         >
           <p className="mb-3 text-sm font-medium">Categories</p>
           <div className="flex flex-col gap-2 text-sm font-light text-gray-700">
-            <p className="flex gap-2">
-              <input
-                className="w-4"
-                type="checkbox"
-                value={"Men"}
-                onChange={toggleCategory}
-              />
-              Men
-            </p>
-            <p className="flex gap-2">
-              <input
-                className="w-4"
-                type="checkbox"
-                value={"Women"}
-                onChange={toggleCategory}
-              />
-              Women
-            </p>
-            <p className="flex gap-2">
-              <input
-                className="w-4"
-                type="checkbox"
-                value={"Kids"}
-                onChange={toggleCategory}
-              />
-              Kids
-            </p>
+            {["Men", "Women", "Kids"].map((value) =>
+              renderCheckBoxItem(value, toggleCategory, true),
+            )}
           </div>
         </div>
         {/* SubCategory Filter */}
@@ -143,42 +169,9 @@ const Collection: React.FC = () => {
         >
           <p className="mb-3 text-sm font-medium">Type</p>
           <div className="flex flex-col gap-2 text-sm font-light text-gray-700">
-            <p className="flex gap-2">
-              <input
-                className="w-4"
-                type="checkbox"
-                value={"Jean"}
-                onChange={toggleSubCategory}
-              />
-              Jean
-            </p>
-            <p className="flex gap-2">
-              <input
-                className="w-4"
-                type="checkbox"
-                value={"Tops"}
-                onChange={toggleSubCategory}
-              />
-              Tops
-            </p>
-            <p className="flex gap-2">
-              <input
-                className="w-4"
-                type="checkbox"
-                value={"Blouse"}
-                onChange={toggleSubCategory}
-              />
-              Blouse
-            </p>
-            <p className="flex gap-2">
-              <input
-                className="w-4"
-                type="checkbox"
-                value={"Tee"}
-                onChange={toggleSubCategory}
-              />
-              Tee
-            </p>
+            {["Jean", "T-Shirt", "Blouse", "Tee"].map((value) =>
+              renderCheckBoxItem(value, toggleSubCategory, false),
+            )}
           </div>
         </div>
       </div>
@@ -187,7 +180,7 @@ const Collection: React.FC = () => {
         <div className="flex justify-between text-base sm:text-2xl mb-4">
           <Title text1={"ALL"} text2={"COLLECTION"} />
           <select
-            onChange={(e) => setSortType(e.target.value)}
+            onChange={(event) => setSortType(event.target.value as SortType)}
             className="border-2 border-gray-300 text-sm px-2"
           >
             <option value="relavent">Sort by: Relavent</option>
