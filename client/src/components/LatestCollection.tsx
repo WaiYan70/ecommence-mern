@@ -7,7 +7,7 @@ import ProductItem from "./ProductItem";
 
 const LatestCollection: React.FC = () => {
   const context = useContext(ShopContext);
-  console.log(context);
+  // console.log(context);
   if (!context) {
     throw new Error("Something is wrong with Shop Context Provider");
   }
