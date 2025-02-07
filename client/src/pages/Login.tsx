@@ -1,10 +1,68 @@
-import { useState } from "react";
+import { useContext, useEffect, useState } from "react";
+import { ShopContext } from "../context/ShopContext";
+import axios from "axios";
+import { toast } from "react-toastify";
 
 const Login = () => {
   const [currentState, setCurrentState] = useState("Sign Up");
-  const onSubmitHandler = (event: React.FormEvent<HTMLFormElement>) => {
+  const context = useContext(ShopContext);
+  if (!context) {
+    throw new Error("Something is wrong with ShopContextProvider");
+  }
+  const { token, setToken, navigate, backendURL } = context;
+  const [name, setName] = useState("");
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+
+  const onSubmitHandler = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
+    try {
+      if (currentState === "Sign Up") {
+        const response = await axios.post(`${backendURL}/api/user/register`, {
+          name,
+          email,
+          password,
+        });
+        console.log(response);
+        if (response.data.success) {
+          toast.success(response.data.message);
+          console.log(response);
+          setToken(response.data.token);
+          localStorage.setItem("token", response.data.token);
+          toast.success("Account Created!");
+        } else {
+          toast.error(response.data.message);
+        }
+      } else {
+        const response = await axios.post(`${backendURL}/api/user/login`, {
+          email,
+          password,
+        });
+        console.log(response);
+        if (response.data.success) {
+          toast.success(response.data.message);
+          console.log(response);
+          setToken(response.data.token);
+          localStorage.setItem("token", response.data.token);
+        } else {
+          toast.error(response.data.message);
+        }
+      }
+    } catch (error) {
+      console.error(error);
+      if (error instanceof Error) {
+        toast.error(error.message);
+      } else {
+        toast.error("Un expected Error occured");
+      }
+    }
   };
+
+  useEffect(() => {
+    if (token) {
+      navigate("/");
+    }
+  }, [token]);
 
   return (
     <form
@@ -19,6 +77,8 @@ const Login = () => {
         ""
       ) : (
         <input
+          onChange={(event) => setName(event.target.value)}
+          value={name}
           type="text"
           className="w-full px-3 py-2 border border-gray-800"
           placeholder="Name"
@@ -26,12 +86,16 @@ const Login = () => {
         />
       )}
       <input
+        onChange={(event) => setEmail(event.target.value)}
+        value={email}
         type="email"
         className="w-full px-3 py-2 border border-gray-800"
         placeholder="Email"
         required
       />
       <input
+        onChange={(event) => setPassword(event.target.value)}
+        value={password}
         type="password"
         className="w-full px-3 py-2 border border-gray-800"
         placeholder="Password"

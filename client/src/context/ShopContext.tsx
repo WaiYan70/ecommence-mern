@@ -8,6 +8,8 @@ interface CartItems {
 }
 
 export interface ShopContextType {
+  token: string;
+  setToken: React.Dispatch<React.SetStateAction<string>>;
   backendURL: string;
   products: Product[];
   setProducts: React.Dispatch<React.SetStateAction<Product[]>>;

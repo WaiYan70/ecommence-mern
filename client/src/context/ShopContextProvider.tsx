@@ -18,6 +18,7 @@ interface ShopContextProviderProps {
 const ShopContextProvider: React.FC<ShopContextProviderProps> = ({
   children,
 }) => {
+  const [token, setToken] = useState<string>("");
   const [search, setSearch] = useState("");
   const [showSearch, setShowSearch] = useState(false);
   const [cartItems, setCartItems] = useState<CartItems>(() => {
@@ -115,7 +116,16 @@ const ShopContextProvider: React.FC<ShopContextProviderProps> = ({
     getProductsData();
   }, [getProductsData]);
 
+  useEffect(() => {
+    const storedToken = localStorage.getItem("token");
+    if (!token && storedToken) {
+      setToken(storedToken);
+    }
+  }, []);
+
   const contextValue: ShopContextType = {
+    token,
+    setToken,
     products,
     setProducts,
     currency: "฿",
