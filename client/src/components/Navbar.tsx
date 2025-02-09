@@ -8,8 +8,22 @@ const Navbar = () => {
   if (!context) {
     throw new Error("Something is wrong in ShopContext or ShopContextProvder");
   }
-  const { setShowSearch, getCartCount } = context;
+  const {
+    setShowSearch,
+    getCartCount,
+    navigate,
+    token,
+    setToken,
+    setCartItems,
+  } = context;
   const [visibleSideBar, setVisibleSideBar] = useState(false);
+
+  const logoutFunction = () => {
+    navigate("/login");
+    localStorage.removeItem("token");
+    setToken("");
+    setCartItems({});
+  };
 
   return (
     <div className="flex items-center justify-between py-5 font-medium">
@@ -36,20 +50,31 @@ const Navbar = () => {
           alt=""
         />
         <div className="group relative">
-          <Link to={"/login"}>
-            <img
-              src={icons.profile_icon}
-              className="w-5 cursor-pointer"
-              alt=""
-            />
-          </Link>
-          <div className="group-hover:block hidden absolute right-0 pt-4">
-            <div className="flex flex-col gap-2 w-36 py-3 px-5 bg-slate-100 text-gray-500 rounded">
-              <p className="cursor-pointer hover:text-black">My Profile</p>
-              <p className="cursor-pointer hover:text-black">Order</p>
-              <p className="cursor-pointer hover:text-black">LogOut</p>
+          <img
+            onClick={() => (token ? null : navigate("/login"))}
+            src={icons.profile_icon}
+            className="w-5 cursor-pointer"
+            alt=""
+          />
+          {token && (
+            <div className="group-hover:block hidden absolute right-0 pt-4">
+              <div className="flex flex-col gap-2 w-36 py-3 px-5 bg-slate-100 text-gray-500 rounded">
+                <p className="cursor-pointer hover:text-black">My Profile</p>
+                <p
+                  onClick={() => navigate("/order")}
+                  className="cursor-pointer hover:text-black"
+                >
+                  Order
+                </p>
+                <p
+                  onClick={logoutFunction}
+                  className="cursor-pointer hover:text-black"
+                >
+                  LogOut
+                </p>
+              </div>
             </div>
-          </div>
+          )}
         </div>
         <Link to="/cart" className="relative">
           <img src={icons.cart_icon} className="w-5 min-w-5" alt="" />
