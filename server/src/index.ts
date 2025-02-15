@@ -6,6 +6,7 @@ import connectDataBase from "./config/mongodb";
 import connectCloudinary from "./config/cloudinary";
 import userRouter from "./routes/user.route";
 import productRouter from "./routes/product.route";
+import cartRouter from "./routes/cart.route";
 
 // App Config
 const app = express();
@@ -21,6 +22,7 @@ app.use(cors());
 // api endpoints
 app.use("/api/user", userRouter);
 app.use("/api/product", productRouter);
+app.use("/api/cart", cartRouter);
 
 app.get("/", (req, res) => {
   res.send("Hello, Express with TypeScript!");
