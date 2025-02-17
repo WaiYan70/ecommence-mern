@@ -37,7 +37,6 @@ const handleError = (res: Response, error: unknown) => {
   return res.json({ success: false, message: "An unknown error occurred" });
 };
 
-// const userRegister = async (req: Request<{}, {}, UserInput>, res: Response) => {
 const userRegister = async (
   req: Request<{}, {}, UserInput>,
   res: Response,

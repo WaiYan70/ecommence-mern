@@ -25,7 +25,7 @@ app.use("/api/product", productRouter);
 app.use("/api/cart", cartRouter);
 
 app.get("/", (req, res) => {
-  res.send("Hello, Express with TypeScript!");
+  res.send("Hello, This Express App with TypeScript is hosted on Render!");
 });
 
 app.listen(port, () => {

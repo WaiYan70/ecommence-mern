@@ -1,18 +1,25 @@
 import { Request, Response, NextFunction } from "express";
 import jwt from "jsonwebtoken";
 
-const authUser = async (req: Request, res: Response, next: NextFunction) => {
+const authUser = async (
+  req: Request,
+  res: Response,
+  next: NextFunction,
+): Promise<void> => {
   const token = req.headers.token;
   if (!token) {
-    return res.json({ success: false, message: "Not Authorized Login Again" });
+    res.json({ success: false, message: "Not Authorized Login Again" });
+    return;
   }
   if (typeof token !== "string") {
-    return res.json({ success: false, message: "Invalid Token Format" });
+    res.json({ success: false, message: "Invalid Token Format" });
+    return;
   }
   try {
     const jwtSecret = process.env.JWT_SECRET;
     if (!jwtSecret) {
-      return res.json({ success: false, message: "JWT_Secret is not defined" });
+      res.json({ success: false, message: "JWT_Secret is not defined" });
+      return;
     }
     const decodeToken = jwt.verify(token, jwtSecret);
     if (typeof decodeToken === "object" && decodeToken !== null) {
@@ -25,7 +32,8 @@ const authUser = async (req: Request, res: Response, next: NextFunction) => {
       res.json({ success: false, message: error.message });
     }
     console.error("An unknown error occured");
-    return res.json({ success: false, message: "An unknown error occured" });
+    res.json({ success: false, message: "An unknown error occured" });
+    return;
   }
 };
 
