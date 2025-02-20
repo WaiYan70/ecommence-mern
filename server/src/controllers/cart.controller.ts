@@ -11,23 +11,26 @@ interface CartData {
 }
 
 interface CartOperationResult {
-  successs: boolean;
+  success: boolean;
   message: string;
-  cartData?: CartItem;
+  cartData?: CartData | CartItem;
   itemCount?: number;
   error?: string;
 }
 
+// Utility Function to Validate MongoDB ObjectId format
 const isValidObjectId = (id: string): boolean => {
   return Types.ObjectId.isValid(id);
 };
 
+// Utility Function to Validate Cart Operation Inputs
 const validateCartInput = (
   userId: string,
   itemId: string,
   size?: string,
   quantity?: number,
 ): string | null => {
+  if (!userId || !itemId) return "User ID and Item ID are required";
   if (!isValidObjectId(userId)) return "Invalid user ID format";
   if (!isValidObjectId(itemId)) return "Invalid item ID format";
   if (size && typeof size !== "string") return "Invalid size format";
@@ -49,43 +52,57 @@ const sendResponse = (
 const addToCart = async (req: Request, res: Response): Promise<void> => {
   try {
     const { userId, itemId, size } = req.body;
+
+    // Check the size when User adds a product to cart
+    if (!size) {
+      sendResponse(res, 400, { success: false, message: "Size is required" });
+      return;
+    }
+
     const validationError = validateCartInput(userId, itemId, size);
     if (validationError) {
-      sendResponse(res, 400, { successs: false, message: validationError });
+      sendResponse(res, 400, { success: false, message: validationError });
       return;
     }
 
     const userData = await userModel.findById(userId).select("cartData");
     if (!userData) {
-      sendResponse(res, 404, { successs: false, message: "User not found" });
+      sendResponse(res, 404, { success: false, message: "User not found" });
       return;
     }
 
-    let cartData: CartData = userData.cartData || {};
-
     // Using immutable update pattern
+    const cartData: CartData = userData.cartData || {};
+    const currentQuantity = (cartData[itemId] || {})[size] || 0;
     const updatedCartData = {
       ...cartData,
       [itemId]: {
         ...(cartData[itemId] || {}),
-        [size]: ((cartData[itemId] || {})[size] || 0) + 1,
+        [size]: currentQuantity + 1,
       },
     };
 
-    await userModel.findByIdAndUpdate(
+    const updatedUser = await userModel.findByIdAndUpdate(
       userId,
       { cartData: updatedCartData },
       { new: true, runValidators: true },
     );
+    if (!updatedUser) {
+      sendResponse(res, 500, {
+        success: false,
+        message: "Failed to update cart",
+      });
+      return;
+    }
     sendResponse(res, 200, {
-      successs: true,
+      success: true,
       message: "Add to Cart Successfully",
-      cartData: updatedCartData[itemId],
+      cartData: updatedCartData,
     });
   } catch (error) {
     console.error("Add to Cart's Function Error: ", error);
     sendResponse(res, 500, {
-      successs: false,
+      success: false,
       message: "Failed to Add to Cart",
       error: error instanceof Error ? error.message : "Unknown Error Occurred",
     });
@@ -96,15 +113,25 @@ const addToCart = async (req: Request, res: Response): Promise<void> => {
 const updateCart = async (req: Request, res: Response): Promise<void> => {
   try {
     const { userId, itemId, size, quantity } = req.body;
+
+    // Check the product's quantity before updating to Cart
+    if (quantity === undefined) {
+      sendResponse(res, 400, {
+        success: false,
+        message: "Quantity is required",
+      });
+      return;
+    }
+
     const validationError = validateCartInput(userId, itemId, size, quantity);
     if (validationError) {
-      sendResponse(res, 400, { successs: false, message: validationError });
+      sendResponse(res, 400, { success: false, message: validationError });
       return;
     }
 
     const userData = await userModel.findById(userId).select("cartData");
-    if (validationError) {
-      sendResponse(res, 400, { successs: false, message: validationError });
+    if (!userData) {
+      sendResponse(res, 400, { success: false, message: "User not found" });
       return;
     }
 
@@ -113,10 +140,8 @@ const updateCart = async (req: Request, res: Response): Promise<void> => {
     if (quantity === 0) {
       if (updatedCartData[itemId]) {
         const { [size]: removed, ...remainingSizes } = updatedCartData[itemId];
-        updatedCartData[itemId];
         if (Object.keys(remainingSizes).length === 0) {
-          const { [itemId]: removedItem, ...remainingItems } = updatedCartData;
-          updatedCartData = remainingItems;
+          delete updatedCartData[itemId];
         } else {
           updatedCartData[itemId] = remainingSizes;
         }
@@ -138,20 +163,20 @@ const updateCart = async (req: Request, res: Response): Promise<void> => {
     );
     if (!updatedUser) {
       sendResponse(res, 500, {
-        successs: false,
+        success: false,
         message: "Failed to Update Cart",
       });
       return;
     }
     sendResponse(res, 200, {
-      successs: true,
+      success: true,
       message: "Cart Updated Successfully",
       cartData: updatedCartData[itemId],
     });
   } catch (error) {
     console.error("Update Cart's Function Error: ", error);
-    sendResponse(res, 200, {
-      successs: false,
+    sendResponse(res, 500, {
+      success: false,
       message: "Failed to Update Cart",
       error: error instanceof Error ? error.message : "Unknown Error Occurred",
     });
@@ -164,7 +189,7 @@ const getUserCart = async (req: Request, res: Response): Promise<void> => {
     const { userId } = req.body;
     if (!isValidObjectId(userId)) {
       sendResponse(res, 400, {
-        successs: false,
+        success: false,
         message: "Invalid User ID format",
       });
       return;
@@ -172,22 +197,23 @@ const getUserCart = async (req: Request, res: Response): Promise<void> => {
 
     const userData = await userModel.findById(userId).select("cartData");
     if (!userData) {
-      sendResponse(res, 404, { successs: false, message: "User not found" });
+      sendResponse(res, 404, { success: false, message: "User not found" });
       return;
     }
 
     const cartData: CartData = userData.cartData || {};
     sendResponse(res, 200, {
-      successs: true,
+      success: true,
+      message: "Get User Cart Data Successfully",
       cartData,
       itemCount: Object.keys(cartData).length,
     });
   } catch (error) {
     console.error("Get User Cart's Function Error: ", error);
     sendResponse(res, 500, {
-      successs: false,
+      success: false,
       message: "Failed to Get Cart Data",
-      error: error instanceof Error ? error.message : "Unknowm Error Occurred",
+      error: error instanceof Error ? error.message : "Unknown Error Occurred",
     });
   }
 };

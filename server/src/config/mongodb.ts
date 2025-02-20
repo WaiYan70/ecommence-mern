@@ -1,4 +1,4 @@
-import mongoose, { mongo } from "mongoose";
+import mongoose from "mongoose";
 
 const connectDataBase = async (): Promise<void> => {
   const connectionString = process.env.MONGODB_URL;
