@@ -51,7 +51,16 @@ const sendResponse = (
 // Add product to User Cart
 const addToCart = async (req: Request, res: Response): Promise<void> => {
   try {
-    const { userId, itemId, size } = req.body;
+    const { itemId, size } = req.body;
+    const userId = req.body.userId;
+
+    if (!userId) {
+      sendResponse(res, 401, {
+        success: false,
+        message: "User not authenticated",
+      });
+      return;
+    }
 
     // Check the size when User adds a product to cart
     if (!size) {
@@ -72,7 +81,7 @@ const addToCart = async (req: Request, res: Response): Promise<void> => {
     }
 
     // Using immutable update pattern
-    const cartData: CartData = userData.cartData || {};
+    let cartData: CartData = userData.cartData || {};
     const currentQuantity = (cartData[itemId] || {})[size] || 0;
     const updatedCartData = {
       ...cartData,
@@ -186,7 +195,7 @@ const updateCart = async (req: Request, res: Response): Promise<void> => {
 // Get User Cart Data
 const getUserCart = async (req: Request, res: Response): Promise<void> => {
   try {
-    const { userId } = req.body;
+    const userId = req.body.userId;
     if (!isValidObjectId(userId)) {
       sendResponse(res, 400, {
         success: false,
@@ -205,8 +214,8 @@ const getUserCart = async (req: Request, res: Response): Promise<void> => {
     sendResponse(res, 200, {
       success: true,
       message: "Get User Cart Data Successfully",
-      cartData,
-      itemCount: Object.keys(cartData).length,
+      cartData: userData.cartData || {},
+      itemCount: Object.keys(userData.cartData || {}).length,
     });
   } catch (error) {
     console.error("Get User Cart's Function Error: ", error);

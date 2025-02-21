@@ -8,12 +8,14 @@ interface CartItems {
 }
 
 export interface ShopContextType {
+  navigate: (path: string) => void;
   token: string;
   setToken: React.Dispatch<React.SetStateAction<string>>;
   backendURL: string;
   products: Product[];
   setProducts: React.Dispatch<React.SetStateAction<Product[]>>;
   getProductsData: () => void;
+  getUserCart: (token: string) => Promise<void>;
   currency: string;
   delivery_fee: number;
   search: string;
@@ -26,7 +28,6 @@ export interface ShopContextType {
   getCartCount: () => number;
   updateQuantity: (itemId: string, size: string, quantity: number) => void;
   getCartAmount: () => number;
-  navigate: (path: string) => void;
 }
 
 export const ShopContext = createContext<ShopContextType | undefined>(

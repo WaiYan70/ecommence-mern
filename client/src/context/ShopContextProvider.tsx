@@ -38,19 +38,99 @@ const ShopContextProvider: React.FC<ShopContextProviderProps> = ({
     setCartItems((prevCartItems) => updater(prevCartItems));
   };
 
-  const addToCart = (itemId: string, size: string): void => {
+  const addToCart = async (itemId: string, size: string) => {
     if (!size) {
       toast.error("Please select the size before adding into the cart");
       return;
     }
-    updatedCartState((prevCartItems) => {
-      const updatedCartItems = { ...prevCartItems };
-      updatedCartItems[itemId] = updatedCartItems[itemId] || {};
-      updatedCartItems[itemId][size] =
-        (updatedCartItems[itemId][size] || 0) + 1;
-      return updatedCartItems;
-    });
+    const token = localStorage.getItem("token");
+    if (!token) {
+      toast.error("Authentication token is missing. Please Log In");
+      return;
+    }
+
+    try {
+      const response = await axios.post(
+        `${backendURL}/api/cart/add`,
+        { itemId, size },
+        { headers: { token } },
+      );
+      if (response.data.success) {
+        updatedCartState((prevCartItems) => {
+          const updatedCartItems = { ...prevCartItems };
+          updatedCartItems[itemId] = updatedCartItems[itemId] || {};
+          updatedCartItems[itemId][size] =
+            (updatedCartItems[itemId][size] || 0) + 1;
+          return updatedCartItems;
+        });
+        toast.success("Item add to cart successfully");
+      } else {
+        toast.error(response.data.message);
+      }
+    } catch (error) {
+      console.error("Error adding to the cart: ", error);
+      toast.error("Failed to add to cart");
+    }
   };
+
+  const updateQuantity = async (
+    itemId: string,
+    size: string,
+    quantity: number,
+  ) => {
+    const token = localStorage.getItem("token");
+    if (!token) {
+      toast.error("Authentication token is missing. Please Log In");
+      return;
+    }
+
+    try {
+      const response = await axios.post(
+        `${backendURL}/api/cart/update`,
+        { itemId, size, quantity },
+        { headers: { token } },
+      );
+      if (response.data.success) {
+        updatedCartState((prevCartItems) => {
+          const updatedCartItems = { ...prevCartItems };
+          if (quantity > 0) {
+            updatedCartItems[itemId] = updatedCartItems[itemId] || {};
+            updatedCartItems[itemId][size] = quantity;
+          } else {
+            if (updatedCartItems[itemId]) {
+              delete updatedCartItems[itemId][size];
+              if (Object.keys(updatedCartItems[itemId]).length === 0) {
+                delete updatedCartItems[itemId];
+              }
+            }
+          }
+          return updatedCartItems;
+        });
+      }
+    } catch (error) {
+      console.error("Error updating to the cart: ", error);
+      toast.error("Failed to update to cart");
+    }
+  };
+
+  const getUserCart = useCallback(
+    async (token: string) => {
+      try {
+        const response = await axios.post(
+          `${backendURL}/api/cart/get`,
+          { token },
+          { headers: { token } },
+        );
+        if (response.data.success) {
+          setCartItems(response.data.cartData);
+        }
+      } catch (error) {
+        console.error("Error getting cart data: ", error);
+        toast.error("Failed to get cart data");
+      }
+    },
+    [backendURL],
+  );
 
   const getCartCount = (): number =>
     Object.values(cartItems).reduce(
@@ -62,24 +142,6 @@ const ShopContextProvider: React.FC<ShopContextProviderProps> = ({
         ),
       0,
     );
-
-  const updateQuantity = (itemId: string, size: string, quantity: number) => {
-    updatedCartState((prevCartItems) => {
-      const updatedCartItems = { ...prevCartItems };
-      if (quantity > 0) {
-        updatedCartItems[itemId] = updatedCartItems[itemId] || {};
-        updatedCartItems[itemId][size] = quantity;
-      } else {
-        if (updatedCartItems[itemId]) {
-          delete updatedCartItems[itemId][size];
-          if (Object.keys(updatedCartItems[itemId]).length === 0) {
-            delete updatedCartItems[itemId];
-          }
-        }
-      }
-      return updatedCartItems;
-    });
-  };
 
   const getCartAmount = (): number =>
     Object.entries(cartItems).reduce((total, [itemId, sizes]) => {
@@ -120,10 +182,13 @@ const ShopContextProvider: React.FC<ShopContextProviderProps> = ({
     const storedToken = localStorage.getItem("token");
     if (!token && storedToken) {
       setToken(storedToken);
+      getUserCart(storedToken);
     }
-  }, []);
+  }, [token, getUserCart]);
 
   const contextValue: ShopContextType = {
+    navigate,
+    backendURL,
     token,
     setToken,
     products,
@@ -140,9 +205,8 @@ const ShopContextProvider: React.FC<ShopContextProviderProps> = ({
     getCartCount,
     updateQuantity,
     getCartAmount,
-    navigate,
-    backendURL,
     getProductsData,
+    getUserCart,
   };
 
   return (

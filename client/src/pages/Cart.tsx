@@ -18,22 +18,24 @@ const Cart: React.FC = () => {
   const { products, currency, cartItems, updateQuantity, navigate } = context;
   const [cartData, setCartData] = useState<CartItem[]>([]);
   useEffect(() => {
-    const tempData: CartItem[] = [];
-    for (const itemId in cartItems) {
-      for (const size in cartItems[itemId]) {
-        const quality = cartItems[itemId][size];
-        if (quality > 0) {
-          tempData.push({
-            _id: itemId,
-            size,
-            quality,
-          });
+    if (products.length > 0) {
+      const tempData: CartItem[] = [];
+      for (const itemId in cartItems) {
+        for (const size in cartItems[itemId]) {
+          const quality = cartItems[itemId][size];
+          if (quality > 0) {
+            tempData.push({
+              _id: itemId,
+              size,
+              quality,
+            });
+          }
         }
       }
+      setCartData(tempData);
+      console.log("Cart Items from Cart: ", tempData);
     }
-    setCartData(tempData);
-    console.log("Cart Items from Cart: ", tempData);
-  }, [cartItems]);
+  }, [cartItems, products]);
   return (
     <div className="border-t pt-14">
       <div className="text-2xl mb-3">

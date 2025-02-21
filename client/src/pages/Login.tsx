@@ -9,7 +9,7 @@ const Login = () => {
   if (!context) {
     throw new Error("Something is wrong with ShopContextProvider");
   }
-  const { token, setToken, navigate, backendURL } = context;
+  const { token, setToken, navigate, backendURL, getUserCart } = context;
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -25,13 +25,13 @@ const Login = () => {
         });
         console.log(response);
         if (response.data.success) {
-          toast.success(response.data.message);
-          console.log(response);
-          setToken(response.data.token);
-          localStorage.setItem("token", response.data.token);
+          const newToken = response.data.token;
+          setToken(newToken);
+          localStorage.setItem("token", newToken);
+          await getUserCart(newToken);
           toast.success("Account Created!");
         } else {
-          toast.error(response.data.message);
+          toast.error("Error SignUp Response Message", response.data.message);
         }
       } else {
         const response = await axios.post(`${backendURL}/api/user/login`, {
@@ -40,12 +40,13 @@ const Login = () => {
         });
         console.log(response);
         if (response.data.success) {
-          toast.success(response.data.message);
-          console.log(response);
-          setToken(response.data.token);
-          localStorage.setItem("token", response.data.token);
+          const newToken = response.data.token;
+          setToken(newToken);
+          localStorage.setItem("token", newToken);
+          await getUserCart(newToken);
+          toast.success("Login Successfull!");
         } else {
-          toast.error(response.data.message);
+          toast.error("Error Login Response Message", response.data.message);
         }
       }
     } catch (error) {
